@@ -9,15 +9,26 @@ use App\Models\Bread\Table;
 class TestController extends Controller
 {
     public function index(Request $request){
-    	$objTable = Table::find(1);
+    	$objTable = Table::with('relationships', 'attributes', 'relationships.attributes')->find(1);
+    	
+    	$objEmployee = (new $objTable->model);
+    	$arrAttributes = $objTable->attributes->pluck('name')->toArray();
 
     	foreach($objTable->relationships as $relationship){
-    		// dd($relationship);
-    		dd((new $relationship->model)->find(3));
+    		$arrRelationshipAttributes = $relationship->attributes->pluck('name')->toArray();
+    		
+    		$objRelations = (new $objTable->model)->{$relationship->name}();
+    		
+    		switch ($relationship->type) {
+    			case 'belongsTo':
+    				array_push($arrAttributes, $objRelations->getForeignKeyName());
+    				array_push($arrRelationshipAttributes, $objRelations->getOwnerKeyName());
+    				break;
+    		}
+    		
+    		$objEmployee = $objEmployee -> with($relationship->name .':' .implode(',', array_unique($arrRelationshipAttributes)));
     	}
-    	dd('test');
-    	$objOffice = Table::find(2);
-    	// dd((new $objTable->model)->find('4656'));
-    	dd((new $objOffice->model)->find(3));
+    	return $objEmployee->select(array_unique($arrAttributes))->find(4656);
     }
 }
+

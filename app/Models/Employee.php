@@ -19,4 +19,8 @@ class Employee extends Model
      * @var string
      */
     protected $primaryKey = 'emp_id';
+
+    public function office(){
+    	return $this->belongsTo('App\Models\Office', 'office_id');
+    }
 }

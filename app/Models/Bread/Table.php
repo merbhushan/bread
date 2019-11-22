@@ -14,11 +14,27 @@ class Table extends Model
     protected $connection = 'bread';
 
     /**
-     * Get the relationship table for the table.
+     * Get the relationships for the table.
      */
     public function relationships()
     {
-        return $this->hasManyThrough('App\Models\Bread\Table', 'App\Models\Bread\Relationship', 'table_id', 'id', 'id', 'relationship_table_id');
+        return $this->hasMany('App\Models\Bread\Relationship');
     }
+
+    /**
+     * Get the fields for the table.
+     */
+    public function attributes()
+    {
+        return $this->hasMany('App\Models\Bread\Attribute');
+    }
+
+    /**
+     * Get the relationship table for the table.
+     */
+    // public function relationships()
+    // {
+    //     return $this->hasManyThrough('App\Models\Bread\Table', 'App\Models\Bread\Relationship', 'table_id', 'id', 'id', 'relationship_table_id');
+    // }
 
 }
