@@ -19,4 +19,8 @@ class Office extends Model
      * @var string
      */
     protected $primaryKey = 'office_id';
+
+    public function creator(){
+        return $this->belongsTo('App\Models\Employee', 'created_by', 'emp_id');
+    }
 }

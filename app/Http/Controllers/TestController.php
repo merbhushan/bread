@@ -9,10 +9,29 @@ use App\Models\Bread\Table;
 class TestController extends Controller
 {
     public function index(Request $request){
-    	$objTable = Table::with('relationships', 'attributes', 'relationships.attributes')->find(1);
+    	session(['api_role_ids' => [1]]);
+    	// dd(\App\Models\Bread\Relationship::find(2)->attributes);
+
+    	// dd(\App\Models\Office::find(3)->creator);
+    	// dd(\App\Models\Employee::with('office.creator')->find(4656));
+    	$objTable = Table::with(['attributes', 'relationships.attributes'])->find(1);
+    	// dd($objTable);
+    	$objModel = (new $objTable->model);
     	
-    	$objEmployee = (new $objTable->model);
-    	$arrAttributes = $objTable->attributes->pluck('name')->toArray();
+    	$tableAttributes = $objTable->attributes;
+    	$arrAttributes = [];
+    	// $objTable->attributes->pluck('name')->toArray();
+    	foreach ($tableAttributes as $tableAttribute) {
+    		// Add in listing array if listing flag is set
+    		if($tableAttribute->listing){
+    			array_push($arrAttributes, $tableAttribute->name);
+    		}
+
+    		if($tableAttribute->search){
+    			$objModel = $this->applySearch($objModel, $request, $tableAttribute);
+    		}
+    	}
+    	
 
     	foreach($objTable->relationships as $relationship){
     		$arrRelationshipAttributes = $relationship->attributes->pluck('name')->toArray();
@@ -26,9 +45,16 @@ class TestController extends Controller
     				break;
     		}
     		
-    		$objEmployee = $objEmployee -> with($relationship->name .':' .implode(',', array_unique($arrRelationshipAttributes)));
+    		$objModel = $objModel -> with($relationship->name .':' .implode(',', array_unique($arrRelationshipAttributes)));
     	}
-    	return $objEmployee->select(array_unique($arrAttributes))->find(4656);
+    	// dd($objModel->select(array_unique($arrAttributes))->toSql());
+    	return $objModel->select(array_unique($arrAttributes))->paginate('10');
+    }
+
+    private function applySearch($objModel, $request, $objAttribute){
+    	return $objModel->when($request->{$objAttribute->name}, function($query, $strSearchValue) use($objAttribute){
+    		return $query->where($objAttribute->name, $strSearchValue);
+    	});
     }
 }
 
