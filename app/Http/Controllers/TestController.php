@@ -10,7 +10,7 @@ class TestController extends Controller
 {
     public function index(Request $request){
     	session(['api_role_ids' => [1]]);
-    	// dd(\App\Models\Bread\Relationship::find(2)->attributes);
+    	dd(\App\Models\Bread\Relationship::find(2)->attributes);
 
     	// dd(\App\Models\Office::find(3)->creator);
     	// dd(\App\Models\Employee::with('office.creator')->find(4656));
@@ -32,20 +32,60 @@ class TestController extends Controller
     		}
     	}
     	
-
+    	$arrRelationships = [];
+    	dd($objTable->relationships);
     	foreach($objTable->relationships as $relationship){
-    		$arrRelationshipAttributes = $relationship->attributes->pluck('name')->toArray();
+    		$objRelations = null;
+    		$strKeyName = null;
     		
-    		$objRelations = (new $objTable->model)->{$relationship->name}();
+    		$arrTrhoughRelations = explode('.', $relationship->name);
     		
-    		switch ($relationship->type) {
-    			case 'belongsTo':
-    				array_push($arrAttributes, $objRelations->getForeignKeyName());
-    				array_push($arrRelationshipAttributes, $objRelations->getOwnerKeyName());
-    				break;
+    		foreach ($arrTrhoughRelations as $strRelation) {
+    			if(empty($objRelations)){
+					$objRelations = (new $objTable->model)->{$strRelation}();
+
+    			}
+    			else{
+    				$objRelations = $objRelations->getRelated()->{$strRelation}();
+    			}
+
+    			switch ($relationship->type) {
+		    		case 'belongsTo':
+		    			if(empty($strKeyName)){
+		    				array_push($arrAttributes, $objRelations->getForeignKeyName());
+		    				$strKeyName = $objRelations->getRelationName();
+		    			}
+		    			else{
+		    				$arrRelationshipsAttributes[$strKeyName][] = $objRelations->getForeignKeyName();
+		    				$strKeyName .= '.' .$objRelations->getRelationName();
+		    			}
+		    			$arrRelationshipsAttributes[$strKeyName][] = $objRelations->getOwnerKeyName();
+		    			break;
+		    	}
+
     		}
-    		
-    		$objModel = $objModel -> with($relationship->name .':' .implode(',', array_unique($arrRelationshipAttributes)));
+		    if(is_array($arrRelationshipsAttributes[$strKeyName])){
+		    	$arrRelationshipsAttributes[$strKeyName] = array_merge($arrRelationshipsAttributes[$strKeyName], $relationship->attributes->pluck('name')->toArray());
+		   	}
+		    else{
+		    	$arrRelationshipsAttributes[$strKeyName] = $relationship->attributes->pluck('name')->toArray();
+		    }
+    		// $objRelations = (new $objTable->model)->{$relationship->name}();
+
+    	}
+    	// dd($arrRelationshipsAttributes);
+    	foreach ($arrRelationshipsAttributes as $strRelationshipName => $arrRelationshipAttributes) {
+    		$arrRelationships[$strRelationshipName] = function($query) use($arrRelationshipAttributes){
+    			return $query->select(array_unique($arrRelationshipAttributes));
+    		};
+    	}
+    		// dd($arrRelationships);
+    	// $arrRelationships['a.b'] = 'test';
+    	// dd($arrRelationships);
+    	if(!empty($arrRelationships)){
+    		$objModel = $objModel -> with($arrRelationships);
+    		// $objModel = $objModel -> with($relationship->name .':' .implode(',', array_unique($arrRelationshipAttributes)));
+    		// dd($arrRelationships);
     	}
     	// dd($objModel->select(array_unique($arrAttributes))->toSql());
     	return $objModel->select(array_unique($arrAttributes))->paginate('10');

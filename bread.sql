@@ -54,11 +54,7 @@ CREATE TABLE `api_role_attribute` (
   `relationship_id` int(10) unsigned NOT NULL DEFAULT '0',
   `attribute_id` int(10) unsigned NOT NULL,
   `search` tinyint(3) unsigned DEFAULT '0',
-  `listing` tinyint(3) unsigned DEFAULT '0',
-  PRIMARY KEY (`api_role_id`,`relationship_id`,`attribute_id`),
-  KEY `FK_api_role_attribute_attributes` (`attribute_id`),
-  CONSTRAINT `FK_api_role_attribute_api_roles` FOREIGN KEY (`api_role_id`) REFERENCES `api_roles` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_api_role_attribute_attributes` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  `listing` tinyint(3) unsigned DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -68,7 +64,7 @@ CREATE TABLE `api_role_attribute` (
 
 LOCK TABLES `api_role_attribute` WRITE;
 /*!40000 ALTER TABLE `api_role_attribute` DISABLE KEYS */;
-INSERT INTO `api_role_attribute` VALUES (1,0,1,1,1),(1,0,2,1,1),(1,0,3,1,1),(1,1,4,0,1),(1,1,5,0,1),(1,1,6,0,1),(1,1,7,0,1),(1,1,8,0,1),(1,2,1,0,1),(1,2,2,0,1);
+INSERT INTO `api_role_attribute` VALUES (1,0,4,0,1),(1,0,5,0,1),(1,0,6,0,1),(1,0,7,0,1),(1,0,8,0,1),(1,0,2,0,1),(1,0,1,1,1),(1,0,2,1,1),(1,0,3,1,1);
 /*!40000 ALTER TABLE `api_role_attribute` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -135,6 +131,33 @@ LOCK TABLES `apis` WRITE;
 /*!40000 ALTER TABLE `apis` DISABLE KEYS */;
 INSERT INTO `apis` VALUES (1,'Employee',1,1,1,'2019-11-25 11:27:18',1,'2019-11-25 11:27:20',NULL,NULL);
 /*!40000 ALTER TABLE `apis` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `attribute_relationship`
+--
+
+DROP TABLE IF EXISTS `attribute_relationship`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `attribute_relationship` (
+  `relationship_id` int(10) unsigned NOT NULL,
+  `attribute_id` int(10) unsigned NOT NULL,
+  KEY `FK__attributes` (`attribute_id`),
+  KEY `FK__relationships` (`relationship_id`),
+  CONSTRAINT `FK__attributes` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK__relationships` FOREIGN KEY (`relationship_id`) REFERENCES `relationships` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `attribute_relationship`
+--
+
+LOCK TABLES `attribute_relationship` WRITE;
+/*!40000 ALTER TABLE `attribute_relationship` DISABLE KEYS */;
+INSERT INTO `attribute_relationship` VALUES (1,4),(1,5),(1,6),(1,7),(1,8),(2,1),(2,2);
+/*!40000 ALTER TABLE `attribute_relationship` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -237,7 +260,7 @@ CREATE TABLE `relationships` (
 
 LOCK TABLES `relationships` WRITE;
 /*!40000 ALTER TABLE `relationships` DISABLE KEYS */;
-INSERT INTO `relationships` VALUES (1,1,2,'office','belongsTo','{\"relationship\": \"hasOne\"}',1,1,'2019-11-22 14:35:38',1,'2019-11-22 14:35:39',NULL,NULL),(2,1,1,'office.creator','belongsTo','{\"relationship\": \"hasOne\"}',0,1,'2019-11-22 14:35:38',1,'2019-11-22 14:35:39',NULL,NULL);
+INSERT INTO `relationships` VALUES (1,1,2,'office','belongsTo','{\"relationship\": \"hasOne\"}',1,1,'2019-11-22 14:35:38',1,'2019-11-22 14:35:39',NULL,NULL),(2,1,1,'office.creator','belongsTo','{\"relationship\": \"hasOne\"}',1,1,'2019-11-22 14:35:38',1,'2019-11-22 14:35:39',NULL,NULL);
 /*!40000 ALTER TABLE `relationships` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -283,4 +306,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-25 16:29:28
+-- Dump completed on 2019-11-26 18:47:16
