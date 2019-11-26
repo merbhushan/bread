@@ -10,7 +10,8 @@ class TestController extends Controller
 {
     public function index(Request $request){
     	session(['api_role_ids' => [1]]);
-    	dd(\App\Models\Bread\Relationship::find(2)->attributes);
+    	// dd(\App\Models\Bread\Table::find(1)->attributes);
+        // dd(\App\Models\Bread\Relationship::find(2)->attributes);
 
     	// dd(\App\Models\Office::find(3)->creator);
     	// dd(\App\Models\Employee::with('office.creator')->find(4656));
@@ -33,7 +34,7 @@ class TestController extends Controller
     	}
     	
     	$arrRelationships = [];
-    	dd($objTable->relationships);
+    	// dd($objTable->relationships);
     	foreach($objTable->relationships as $relationship){
     		$objRelations = null;
     		$strKeyName = null;
@@ -70,6 +71,7 @@ class TestController extends Controller
 		    else{
 		    	$arrRelationshipsAttributes[$strKeyName] = $relationship->attributes->pluck('name')->toArray();
 		    }
+            // dd($relationship);
     		// $objRelations = (new $objTable->model)->{$relationship->name}();
 
     	}
