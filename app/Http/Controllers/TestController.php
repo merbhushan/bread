@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Bread\Table;
+use App\Http\Controllers\BreadController;
 
 class TestController extends Controller
 {
@@ -16,6 +17,10 @@ class TestController extends Controller
     	// dd(\App\Models\Office::find(3)->creator);
     	// dd(\App\Models\Employee::with('office.creator')->find(4656));
     	$objTable = Table::with(['attributes', 'relationships.attributes'])->find(1);
+    	session(['objTable' => $objTable]);
+    	$bread = new BreadController();
+    	dd($bread->index($request, 1));
+
     	// dd($objTable);
     	$objModel = (new $objTable->model);
     	
