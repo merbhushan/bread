@@ -1,13 +1,13 @@
--- MariaDB dump 10.17  Distrib 10.4.8-MariaDB, for Win64 (AMD64)
+-- MySQL dump 10.13  Distrib 5.7.28, for Linux (x86_64)
 --
 -- Host: 127.0.0.1    Database: bread
 -- ------------------------------------------------------
--- Server version	10.4.8-MariaDB
+-- Server version	5.7.28-0ubuntu0.18.04.4-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -54,13 +54,13 @@ CREATE TABLE `api_attributes` (
   `table_id` int(11) unsigned DEFAULT NULL,
   `relatioship_id` int(10) unsigned DEFAULT NULL,
   `attribute_id` int(10) unsigned DEFAULT NULL,
-  `search` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  `listing` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  `status` tinyint(3) unsigned DEFAULT 1,
+  `search` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `listing` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(3) unsigned DEFAULT '1',
   `created_by` int(10) unsigned NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` int(10) unsigned NOT NULL,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -87,13 +87,13 @@ CREATE TABLE `api_attributes_2` (
   `modulable_type` varchar(50) DEFAULT NULL,
   `modulable_id` int(10) unsigned DEFAULT NULL,
   `attribute_id` int(10) unsigned DEFAULT NULL,
-  `search` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  `listing` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  `status` tinyint(3) unsigned DEFAULT 1,
+  `search` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `listing` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(3) unsigned DEFAULT '1',
   `created_by` int(10) unsigned NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` int(10) unsigned NOT NULL,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -133,6 +133,32 @@ LOCK TABLES `api_role_api_attribute` WRITE;
 /*!40000 ALTER TABLE `api_role_api_attribute` DISABLE KEYS */;
 INSERT INTO `api_role_api_attribute` VALUES (1,1),(1,2),(1,3),(1,4),(1,5),(1,7),(1,6),(1,8),(1,9),(1,10);
 /*!40000 ALTER TABLE `api_role_api_attribute` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `api_role_attribute`
+--
+
+DROP TABLE IF EXISTS `api_role_attribute`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `api_role_attribute` (
+  `api_role_id` int(10) unsigned NOT NULL,
+  `relationship_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `attribute_id` int(10) unsigned NOT NULL,
+  `search` tinyint(3) unsigned DEFAULT '0',
+  `listing` tinyint(3) unsigned DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_role_attribute`
+--
+
+LOCK TABLES `api_role_attribute` WRITE;
+/*!40000 ALTER TABLE `api_role_attribute` DISABLE KEYS */;
+INSERT INTO `api_role_attribute` VALUES (1,0,4,0,1),(1,0,5,0,1),(1,0,6,0,1),(1,0,7,0,1),(1,0,8,0,1),(1,0,2,0,1),(1,0,1,1,1),(1,0,2,1,1),(1,0,3,1,1);
+/*!40000 ALTER TABLE `api_role_attribute` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -305,8 +331,8 @@ CREATE TABLE `relationships` (
   `relationship_table_id` int(10) unsigned NOT NULL,
   `name` varchar(50) NOT NULL,
   `type` enum('hasOne','belongsTo','hasMany','belongsToMany','hasOneThrough','hasManyThrough','morphTo','morphOne','morphMany') NOT NULL,
-  `detail` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`detail`)),
-  `status` tinyint(4) NOT NULL DEFAULT 1,
+  `detail` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT '1',
   `created_by` int(10) unsigned NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_by` int(10) unsigned NOT NULL,
@@ -373,4 +399,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-26 22:30:54
+-- Dump completed on 2019-11-28 17:28:45
