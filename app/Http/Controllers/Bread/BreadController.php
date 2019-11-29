@@ -9,10 +9,13 @@ use App\Models\Bread\Attribute;
 use App\Models\Bread\Relationship;
 use App\Models\Bread\Table;
 use App\Http\Controllers\Bread\RelationshipController;
+use App\Traits\Bread\AttributesProcess;
 
 class BreadController extends Controller
 {
-    private $arrTableAttributes = [], $table, $model;
+    use AttributesProcess;
+
+    private $table, $model, $arrTableWhere = [], $arrTableAttributes = [];
 
     public function __construct()
     {
@@ -39,22 +42,39 @@ class BreadController extends Controller
         // Generate Model object of associated Table.
         $this->model = (new $this->table->model);
 
+        $this->applyListing($request, $this->table->attributes, $this->arrTableAttributes, $this->arrTableWhere);
+
+        // dd([$this->arrTableAttributes, $this->arrTableWhere]);
         // Process Table's attributes
-        foreach ($this->table->attributes as $attribute) {
-            // Add in listing array if listing flag is set
-            if($attribute->listing){
-                array_push($this->arrTableAttributes, $attribute->name);
-            }
-            // Apply search on a model instance if search flag is set
-            if($attribute->search){
-                $this->applySearch($request, $attribute);
-            }
-        }
-        // dd($this->table->relationships);
+        // foreach ($this->table->attributes as $attribute) {
+        //     // Add in listing array if listing flag is set
+        //     if($attribute->listing){
+        //         array_push($this->arrTableAttributes, $attribute->name);
+        //     }
+        //     // Apply search on a model instance if search flag is set
+        //     if($attribute->search){
+        //         $this->applySearch($request, $attribute);
+        //     }
+        // }
+        // Initialize relationship controller
         $objRelationshipController =  new RelationshipController($request, $this->model);
+        // Process relationship attributes.
         foreach($this->table->relationships as $relationship){
            $objRelationshipController->handle($relationship);
         }
+        // Apply relationship
+        foreach ($this->table->relationships as $relationship) {
+            $this->model = $objRelationshipController->applyRelationship($relationship);
+        }
+
+        $this->arrTableAttributes = array_unique(array_merge($this->arrTableAttributes, $objRelationshipController->getModelAttributes()));
+
+        return $this->model
+            ->select($this->arrTableAttributes)
+            ->when($this->arrTableWhere, function($query, $arrWhere){
+                return $query->where($arrWhere);
+            })
+            ->paginate(10);
         dd($objRelationshipController->getRelationsAttributes());
         dd($this->model);
 
@@ -65,11 +85,11 @@ class BreadController extends Controller
      *
      * @return void
      */
-    private function applySearch(Request $request,Attribute $attribute){
-        $this->model->when($request->{$attribute->name}, function($query, $strSearchValue) use($attribute){
-            return $query->where($attribute->name, $strSearchValue);
-        });
-    }
+    // private function applySearch(Request $request,Attribute $attribute){
+    //     $this->model->when($request->{$attribute->name}, function($query, $strSearchValue) use($attribute){
+    //         return $query->where($attribute->name, $strSearchValue);
+    //     });
+    // }
 
     /**
      * Show the form for creating a new resource.

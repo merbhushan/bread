@@ -19,6 +19,7 @@ class TestController extends Controller
     	$objTable = Table::with(['attributes', 'relationships.attributes'])->find(1);
     	session(['objTable' => $objTable]);
     	$bread = new BreadController();
+    	return ($bread->index($request, 1));
     	dd($bread->index($request, 1));
 
     	// dd($objTable);
