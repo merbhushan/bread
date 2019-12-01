@@ -59,23 +59,24 @@ class BreadController extends Controller
         // Initialize relationship controller
         $objRelationshipController =  new RelationshipController($request, $this->model);
         // Process relationship attributes.
-        foreach($this->table->relationships as $relationship){
-           $objRelationshipController->handle($relationship);
-        }
+        // foreach($this->table->relationships as $relationship){
+        //    $objRelationshipController->handle($relationship);
+        // }
         // Apply relationship
-        foreach ($this->table->relationships as $relationship) {
-            $this->model = $objRelationshipController->applyRelationship($relationship);
-        }
+        $this->model = $objRelationshipController->applyRelationships($this->table->relationships);
+        // foreach ($this->table->relationships as $relationship) {
+        //     $this->model = $objRelationshipController->applyRelationship($relationship);
+        // }
 
         $this->arrTableAttributes = array_unique(array_merge($this->arrTableAttributes, $objRelationshipController->getModelAttributes()));
-
+        
         return $this->model
             ->select($this->arrTableAttributes)
             ->when($this->arrTableWhere, function($query, $arrWhere){
                 return $query->where($arrWhere);
             })
             ->paginate(10);
-        dd($objRelationshipController->getRelationsAttributes());
+        // dd($objRelationshipController->getRelationsAttributes());
         dd($this->model);
 
     }

@@ -12,14 +12,16 @@ class TestController extends Controller
     public function index(Request $request){
     	session(['api_role_ids' => [1]]);
     	// dd(\App\Models\Bread\Table::find(1)->attributes);
-        // dd(\App\Models\Bread\Relationship::find(2)->attributes);
+        // dd(\App\Models\Bread\Relationship::find(3)->attributes);
 
-    	// dd(\App\Models\Office::find(3)->creator);
+    	// dd(\App\Models\Office::find(3)->employees);
     	// dd(\App\Models\Employee::with('office.creator')->find(4656));
-    	$objTable = Table::with(['attributes', 'relationships.attributes'])->find(1);
-    	session(['objTable' => $objTable]);
+    	// $objTable = Table::with(['attributes', 'relationships.attributes'])->find(2);
+    	// session(['objTable' => $objTable]);
+        // dd(session('objTable'));
     	$bread = new BreadController();
     	return ($bread->index($request, 1));
+        return ($bread->index($request, 2));
     	dd($bread->index($request, 1));
 
     	// dd($objTable);

@@ -6,21 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Office extends Model
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'office_master';
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'office_id';
-
+    protected $primaryKey = 'ofc_id';
     public function creator(){
-        return $this->belongsTo('App\Models\Employee', 'created_by', 'emp_id');
+        return $this->belongsTo('App\Models\Employee', 'created_by', 'id');
+    }
+
+    public function employees(){
+        return $this->hasOne('App\Models\Employee');
+        return $this->hasMany('App\Models\Employee');
     }
 }
