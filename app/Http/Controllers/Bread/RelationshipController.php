@@ -16,7 +16,7 @@ class RelationshipController extends Controller
 {
 	use AttributesProcess;
 
-	private $model, $relationship, $modelAttributes = [], $request, $arrAttributes = [], $arrWhere = [], $strRelationName;
+	private $model, $relationship, $modelAttributes = [], $request, $arrAttributes = [], $arrWhere = [], $strRelationName, $arrWith = [];
 
 	public function __construct(Request $request, $model){
 		$this->request = $request;
@@ -66,10 +66,13 @@ class RelationshipController extends Controller
 		foreach ($relationships as $relationship) {
 			$this->handle($relationship);
 		}
-		
 		foreach ($relationships as $relationship) {
 			$this->applyRelationship($relationship);
 			unset($this->arrAttributes[$relationship->name]);
+		}
+		// dd($this->arrWith);
+		if(count($this->arrWith)){
+			$this->model = $this->model->with($this->arrWith);
 		}
 		
 		foreach ($this->arrAttributes as $strRelationName => $arrSelect) {
@@ -93,11 +96,11 @@ class RelationshipController extends Controller
 		}
 		$this->applyListing($this->request, $relationship->attributes, $this->arrAttributes[$relationship->name], $this->arrWhere[$relationship->name]);
 		$arrSelect = array_unique($this->arrAttributes[$relationship->name]);
-		$this->model = $this->model->with([
-			$relationship->name => function($query) use($relationship, $arrSelect){
-				$query->select($arrSelect);
-			}
-		]);
+		
+		$this->arrWith[$relationship->name] = function($query) use($relationship, $arrSelect){
+			$query->select($arrSelect);
+		};
+		
 	}
 
 	public function getModelAttributes(){
