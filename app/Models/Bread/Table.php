@@ -38,6 +38,8 @@ class Table extends Model
             ->selectRaw('attributes.*, SUM(api_attributes.search) as search, SUM(api_attributes.listing) as listing')
             ->join('api_role_api_attribute', 'api_role_api_attribute.api_attribute_id', '=', 'api_attributes.id')
             ->whereIn('api_role_api_attribute.api_role_id', $arrRoleIds)
+            ->where('attributes.status', 1)
+            ->where('api_attributes.status', 1)
             ->groupBy('attributes.id');
         return $this->morphMany('App\Models\Bread\ApiAttribute', 'modulable')
             ->selectRaw('attributes.*, api_attributes.*')

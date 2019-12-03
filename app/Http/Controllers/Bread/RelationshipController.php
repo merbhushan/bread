@@ -16,7 +16,7 @@ class RelationshipController extends Controller
 {
 	use AttributesProcess;
 
-	private $model, $relationship, $modelAttributes = [], $request, $arrAttributes = [], $arrWhere = [], $strRelationName, $arrWith = [];
+	private $model, $relationship, $modelAttributes = [], $request, $arrAttributes = [], $arrWhere = [], $strRelationName, $arrWith = [], $arrWhereHasCount = [];
 
 	public function __construct(Request $request, $model){
 		$this->request = $request;
@@ -66,11 +66,12 @@ class RelationshipController extends Controller
 		foreach ($relationships as $relationship) {
 			$this->handle($relationship);
 		}
+		
 		foreach ($relationships as $relationship) {
 			$this->applyRelationship($relationship);
 			unset($this->arrAttributes[$relationship->name]);
 		}
-		// dd($this->arrWith);
+		
 		if(count($this->arrWith)){
 			$this->model = $this->model->with($this->arrWith);
 		}
@@ -85,20 +86,54 @@ class RelationshipController extends Controller
 				}
 			]);
 			unset($this->arrAttributes[$strRelationName]);
-		}	
+		}
+
+		foreach ($relationships as $relationship) {
+			if(isset($this->arrWhere[$relationship->name]) && count($this->arrWhere[$relationship->name])){
+				if(!isset($this->arrWhereHasCount[$relationship->name])){
+					$this->arrWhereHasCount[$relationship->name] = 1;
+				}
+			}
+			
+			if( (isset($this->arrWhere[$relationship->name]) && count($this->arrWhere[$relationship->name]))
+				|| (isset($this->arrWhereHasCount[$relationship->name]) && $this->arrWhereHasCount[$relationship->name] > 0)
+			){
+				// dd($this->arrWhereHasCount);
+				$this->model = $this->model->whereHas($relationship->name, function($query) use($relationship){
+					$query->where($this->arrWhere[$relationship->name]);
+				}, '>=', $this->arrWhereHasCount[$relationship->name]);				
+			}
+		}
+		
+		// foreach ($this->arrWhere as $strRelation => $arrWhere) {
+		// 	if(count($arrWhere)){
+		// 		$this->model = $this->model->whereHas($strRelation, function($query) use($arrWhere){
+		// 			$query->where($arrWhere);
+		// 		}, '>=', $this->arrWhereHasCount[$strRelation]);				
+		// 	}
+		// }
+
 		return $this->model;
 	}
 
 	public function applyRelationship(Relationship $relationship){
 		$this->arrWhere[$relationship->name] = [];
+		$arrRelationFilter = [];
+		$intWhereHasCount = 1;
+
 		if(!isset($this->arrAttributes[$relationship->name])){
 			$this->arrAttributes[$relationship->name] = [];
 		}
-		$this->applyListing($this->request, $relationship->attributes, $this->arrAttributes[$relationship->name], $this->arrWhere[$relationship->name]);
+
+		$this->applyListing($this->request, $relationship->attributes, $this->arrAttributes[$relationship->name], $this->arrWhere[$relationship->name], $arrRelationFilter, $relationship->name);
 		$arrSelect = array_unique($this->arrAttributes[$relationship->name]);
-		
-		$this->arrWith[$relationship->name] = function($query) use($relationship, $arrSelect){
-			$query->select($arrSelect);
+
+		$this->arrWith[$relationship->name] = function($query) use($relationship, $arrSelect, $arrRelationFilter){
+			$query = $query->select($arrSelect);
+			if(count($arrRelationFilter)){
+				$query->where($arrRelationFilter);
+			}
+
 		};
 		
 	}
@@ -117,21 +152,6 @@ class RelationshipController extends Controller
 		return $this->arrAttributes;
 	}
 
-	private function belongsTo(BelongsTo $belongsTo, $strRelation = ''){
-		// dd($belongsTo->getRelationName());
-		// First relation will directly related with our main model so strRelationName will empty so for that add foreign key into main model attributes else update in a respective relationship attributes.
-		if(empty($this->strRelationName)){
-		    $this->modelAttributes[] = $belongsTo->getForeignKeyName();
-		}
-		else{
-			$this->arrAttributes[$this->strRelationName][] = $belongsTo->getForeignKeyName();
-		}
-		// Update Relation name for current relation
-		$this->strRelationName .= (empty($this->strRelationName) ? '' : '.') .$belongsTo->getRelationName();
-		// Update OwnerKey name in Respective relationship attributes
-		$this->arrAttributes[$this->strRelationName][] = $belongsTo->getOwnerKeyName();
-    }
-
     private function relationshipUpdate($strForeignKey, $strLocalKey, $strRelation){
 		// First relation will directly related with our main model so strRelationName will empty so for that add foreign key into main model attributes else update in a respective relationship attributes.
 		if(empty($this->strRelationName)){
@@ -146,23 +166,4 @@ class RelationshipController extends Controller
 		$this->arrAttributes[$this->strRelationName][] = $strLocalKey;
 		// dd($this->strRelationName);
     }
-
-    private function hasMany(HasMany $hasMany, $strRelationName){
-    	// dd($hasMany);
-    	// First relation will directly related with our main model so strRelationName will empty so for that add foreign key into main model attributes else update in a respective relationship attributes.
-		if(empty($this->strRelationName)){
-		    $this->modelAttributes[] = $hasMany->getForeignKeyName();
-		}
-		else{
-			$this->arrAttributes[$this->strRelationName][] = $belongsTo->getForeignKeyName();
-		}
-		// Update Relation name for current relation
-		$this->strRelationName .= (empty($this->strRelationName) ? '' : '.') .$strRelationName;
-		// Update OwnerKey name in Respective relationship attributes
-		$this->arrAttributes[$this->strRelationName][] = $belongsTo->getLocalKeyName();
-    }
-
-    private function getAttributes(){
-
-	}
 }
