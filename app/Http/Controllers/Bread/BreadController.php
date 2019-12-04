@@ -34,6 +34,11 @@ class BreadController extends Controller
             ->with(['attributes', 'relationships.attributes'])
             ->find($intTableId);
 
+        // Remove relationships which doesn't havy any attributes
+        $this->table->relationships = $this->table->relationships->filter(function($value, $key){
+            return $value->attributes->count() > 0;
+        });
+
         // 404 if a table instance not found
         if(empty($this->table)){
             return abort(404, 'Not Found');
